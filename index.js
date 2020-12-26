@@ -219,7 +219,7 @@ async function getLiveMatch(chan, user, SteamID) {
                 
         let names = Object.getOwnPropertyNames(test.payload)
         var r = test.payload[names[0]][0];
-        var ownFactionNumber = checkForValue(r.teams.faction1, FaceitID) ? 2 : 1;
+        var ownFactionNumber = checkForValue(r.teams.faction1, FaceitID) ? 1 : 2;
         var enemyFactionNumber = 1 == ownFactionNumber ? 2 : 1
         
         var teamname1 = r.teams["faction" + ownFactionNumber].name;
