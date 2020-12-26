@@ -11,7 +11,7 @@ var Bearertoken = "xxxxx-AAAAA-BBBBBB";			// Bearertoken from Faceit
 var USERNAME = "Dietze_"				// Twitch Botname
 var oauthToken = "oauth:xxxx-AAAAA-BBBB"		// oauthToken from Twitch
 
-var playerTempElo, FaceitID, SteamID;
+var playerTempElo, FaceitID, SteamID, wrongSteam;
 
 let listener = app.listen(process.env.PORT, function() {
   console.log("Your app is listening on port " + listener.address().port);
@@ -44,8 +44,10 @@ client.on("connected", (address, port) => {
 client.on("chat", (channel, userstate, commandMessage, self) => {
   if (commandMessage.split(" ")[1] !== undefined){
     SteamID = commandMessage.split(" ")[1];
+    wrongSteam = false;
   } else {
     SteamID = StreamerSteamID;
+    wrongSteam = false;
   }
   switch(commandMessage.split(" ")[0]) {
     case '!last':
@@ -73,19 +75,21 @@ client.on("chat", (channel, userstate, commandMessage, self) => {
 
 
 async function getGuid(steamId){
+  console.log(steamId);
   await axios
   .get(
   "https://api.faceit.com/search/v1?limit=5&query=" + steamId,
   ).then(response => {
     if (response.status !== 200) {
-        var isNull = true;
-      } else {
+        return;
+    } else {
                     
       	if(response.data.payload.players.results.length == 0)
-            return;
+            wrongSteam = true;
+            return null
+        
 	      response.data.payload.players.results.forEach((user, index) => {
           if (user.games.length > 0) {
-            
             user.games.forEach((game) => {
               if (game.name == 'csgo'){
                 FaceitID = response.data.payload.players.results[index].guid;
@@ -102,6 +106,10 @@ async function getGuid(steamId){
 
 async function getElo(chan, user, SteamID){
   await getGuid(SteamID)
+  if(wrongSteam == true){
+    client.say(chan, `/me @` + user + ` No Faceitaccount found`);
+    return;
+  }
   await axios
   .get(
   "http://api.satont.ru/faceit?nick=" + FaceitUsername,
@@ -114,8 +122,7 @@ async function getElo(chan, user, SteamID){
           `/me @` + user +
           ` Inspected user: ` + FaceitUsername +
           ` FACEIT LVL: ` + response.data.lvl +
-          ` ELO: ` + response.data.elo +
-          ` MM Rank: The Global Elite`
+          ` ELO: ` + response.data.elo
         );
       }
   })
@@ -124,6 +131,10 @@ async function getElo(chan, user, SteamID){
 
 async function getlast(chan, user, SteamID) {
   await getGuid(SteamID)
+  if(wrongSteam == true){
+    client.say(chan, `/me @` + user + ` No Faceitaccount found`);
+    return;
+  }
   await axios
     .get(
       "https://api.faceit.com/stats/v1/stats/time/users/" + FaceitID + "/games/csgo?size=1",
@@ -156,6 +167,10 @@ async function getlast(chan, user, SteamID) {
 
 async function getStats(chan, user, SteamID) {
   await getGuid(SteamID)
+  if(wrongSteam == true){
+    client.say(chan, `/me @` + user + ` No Faceitaccount found`);
+    return;
+  }
   await axios
     .get(
       "https://api.faceit.com/stats/v1/stats/time/users/" + FaceitID + "/games/csgo",
@@ -202,6 +217,10 @@ async function getStats(chan, user, SteamID) {
 
 async function getLiveMatch(chan, user, SteamID) {
   await getGuid(SteamID)
+  if(wrongSteam == true){
+    client.say(chan, `/me @` + user + ` No Faceitaccount found`);
+    return;
+  }
   await axios
     .get(
       "https://api.faceit.com/match/v1/matches/groupByState?userId=" + FaceitID,
