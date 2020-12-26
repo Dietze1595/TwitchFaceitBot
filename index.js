@@ -40,43 +40,25 @@ client.on("connected", (address, port) => {
 
 
 client.on("chat", (channel, userstate, commandMessage, self) => {
-  var conditions = ["!last"];
-  conditions.forEach(condi => {
-    if (commandMessage.split(" ")[0].includes(condi)) {
+  switch(commandMessage) {
+    case '!last': 
       getlast(channel, userstate["display-name"]);
-    }
-  });
-});
-
-client.on("chat", (channel, userstate, commandMessage, self) => {
-  var conditions = ["!stats"];
-  conditions.forEach(condi => {
-    if (commandMessage.split(" ")[0].includes(condi)) {
-      getStats(channel, userstate["display-name"])
-    }
-  });
-});
-
-client.on("chat", (channel, userstate, commandMessage, self) => {
-  var conditions = ["!live"];
-  conditions.forEach(condi => {
-    if (commandMessage.split(" ")[0].includes(condi)) {
-      getLiveMatch(channel, userstate["display-name"])
-    }
-  });
-});
-
-client.on("chat", (channel, userstate, commandMessage, self) => {
-  var conditions = ["!cmd", "!commands", "!faceit"];
-  conditions.forEach(condi => {
-    if (commandMessage.split(" ")[0].includes(condi)) {
+      break;
+    case 'stats':
+      getStats(channel, userstate["display-name"]);
+      break;
+    case 'live':
+      getLiveMatch(channel, userstate["display-name"]);
+      break;
+    case '!cmd':
+    case '!commands':
+    case '!faceit':
       client.say(channel, `/me @` + userstate["display-name"] + " You can use these Faceitcommands !last, !live, !stats, !rank");
-    }
-  });
+      break;
+    default:
+      break;
+  };
 });
-
-
-
 
 
 
@@ -231,7 +213,7 @@ async function getLiveMatch(chan, user) {
 async function getEloFromPlayer(e) {
   var isNull = 0;
     await axios
-        .get("https://open.faceit.com/data/v4/players/" + e, { headers: { Authorization: "Bearer " + Bearertoken } })
+        .get("https://open.faceit.com/data/v4/players/" + e, { headers: { Authorization: "Bearer " + Bearertoken} })
         .then((e) => {
             200 !== e.status
                 ? (isNull = !0)
