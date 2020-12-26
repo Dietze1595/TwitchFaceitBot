@@ -82,12 +82,12 @@ async function getGuid(steamId){
   ).then(response => {
     if (response.status !== 200) {
         return;
-    } else {
-                    
-      	if(response.data.payload.players.results.length == 0)
+    } else {       
+      	if(response.data.payload.players.results.length == 0){ 
             wrongSteam = true;
             return null
-        
+        }
+      
 	      response.data.payload.players.results.forEach((user, index) => {
           if (user.games.length > 0) {
             user.games.forEach((game) => {
