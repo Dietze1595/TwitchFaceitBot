@@ -4,8 +4,8 @@ var axios = require("axios");
 const app = express();
 
 var USERNAME = Dietze_;
-var oauthtoken = oauth:xxxx-AAAAA-BBBBB;
-var Bearertoken = xxxxx-xxxxx-xxxxx-xxxx;
+var oauthtoken = "oauth:xxxx-AAAAA-BBBBB";
+var Bearertoken = "xxxxx-xxxxx-xxxxx-xxxx";
 var playerTempElo = 0;
 
 app.get("/", function(request, response) {
