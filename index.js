@@ -4,13 +4,14 @@ var axios = require("axios");
 const app = express();
 
 
-var ID = "62d12eaa-b0a6-4f8e-a1b9-c0c742d95cb1";
-var Bearertoken = "xxxxx-AAAAAA-BBBBBB";
+const StreamerSteamID = "76561198257065483";
+var FaceitUsername = "Dietze_"
 
-var USERNAME = "Dietze_"
-var oauthToken = "oauth:xxxx-AAAAA-BBBB"
+var Bearertoken = "xxxxx-AAAAA-BBBBBB";			// Bearertoken from Faceit
+var USERNAME = "Dietze_"				// Twitch Botname
+var oauthToken = "oauth:xxxx-AAAAA-BBBB"		// oauthToken from Twitch
 
-var playerTempElo;
+var playerTempElo, FaceitID, SteamID;
 
 let listener = app.listen(process.env.PORT, function() {
   console.log("Your app is listening on port " + listener.address().port);
@@ -25,8 +26,8 @@ let options = {
     reconnect: true
   },
   identity: {
-    username: USERNAME,
-    password: oauthToken
+    username: process.env.USERNAME,
+    password: process.env.PASSWORD
   },
   channels: ["Dietze_"]
 };
@@ -41,19 +42,24 @@ client.on("connected", (address, port) => {
 
 
 client.on("chat", (channel, userstate, commandMessage, self) => {
-  switch(commandMessage) {
-    case '!last': 
-      getlast(channel, userstate["display-name"]);
+  if (commandMessage.split(" ")[1] !== undefined){
+    SteamID = commandMessage.split(" ")[1];
+  } else {
+    SteamID = StreamerSteamID;
+  }
+  switch(commandMessage.split(" ")[0]) {
+    case '!last':
+      getlast(channel, userstate["display-name"], SteamID);
       break;
     case '!stats':
-      getStats(channel, userstate["display-name"]);
+      getStats(channel, userstate["display-name"], SteamID);
       break;
     case '!live':
-      getLiveMatch(channel, userstate["display-name"]);
+      getLiveMatch(channel, userstate["display-name"], SteamID);
       break;
     case '!rank':
     case '!elo':
-      getElo(channel, userstate["display-name"]);
+      getElo(channel, userstate["display-name"], SteamID);
       break;
     case '!cmd':
     case '!commands':
@@ -65,10 +71,40 @@ client.on("chat", (channel, userstate, commandMessage, self) => {
   };
 });
 
-async function getElo(chan, user){
+
+async function getGuid(steamId){
   await axios
   .get(
-  "http://api.satont.ru/faceit?nick=Dietze_",
+  "https://api.faceit.com/search/v1?limit=5&query=" + steamId,
+  ).then(response => {
+    if (response.status !== 200) {
+        var isNull = true;
+      } else {
+                    
+      	if(response.data.payload.players.results.length == 0)
+            return;
+	      response.data.payload.players.results.forEach((user, index) => {
+          if (user.games.length > 0) {
+            
+            user.games.forEach((game) => {
+              if (game.name == 'csgo'){
+                FaceitID = response.data.payload.players.results[index].guid;
+                FaceitUsername = response.data.payload.players.results[index].nickname;
+				      }
+			      })
+          }
+        });
+    }  
+  })
+  .catch(function(error) {});
+}
+
+
+async function getElo(chan, user, SteamID){
+  await getGuid(SteamID)
+  await axios
+  .get(
+  "http://api.satont.ru/faceit?nick=" + FaceitUsername,
   ).then(response => {
     if (response.status !== 200) {
         var isNull = true;
@@ -76,6 +112,7 @@ async function getElo(chan, user){
         client.say(
           chan,
           `/me @` + user +
+          ` Inspected user: ` + FaceitUsername +
           ` FACEIT LVL: ` + response.data.lvl +
           ` ELO: ` + response.data.elo +
           ` MM Rank: The Global Elite`
@@ -85,10 +122,11 @@ async function getElo(chan, user){
   .catch(function(error) {});
 }
 
-async function getlast(chan, user) {
+async function getlast(chan, user, SteamID) {
+  await getGuid(SteamID)
   await axios
     .get(
-      "https://api.faceit.com/stats/v1/stats/time/users/" + ID + "/games/csgo?size=1",
+      "https://api.faceit.com/stats/v1/stats/time/users/" + FaceitID + "/games/csgo?size=1",
     )
     .then(response => {
       if (response.status !== 200) {
@@ -97,10 +135,12 @@ async function getlast(chan, user) {
         var last = response.data[0];
         if (user == "Dietze_" && last.matchId == lastmatchid) return;
         var lastmatchid = last.matchId;
+        
         var won = last.teamId == last.i2 ? "WON" : "LOST";
         client.say(
           chan,
           `/me @` + user +
+          ` Inspected user: ` + FaceitUsername +
           ` last map ` + won +
           ` Map: ` + last.i1 +
           `. Score: ` + last.i18 +
@@ -108,16 +148,17 @@ async function getlast(chan, user) {
           ` Assists: ` + last.i7 +
           ` Deaths: ` + last.i8 +
           ` HS: ` + last.c4 + `%`
-        );
+        ); 
       }
     })
     .catch(function(error) {});
 }
 
-async function getStats(chan, user) {
+async function getStats(chan, user, SteamID) {
+  await getGuid(SteamID)
   await axios
     .get(
-      "https://api.faceit.com/stats/v1/stats/time/users/" + ID + "/games/csgo",
+      "https://api.faceit.com/stats/v1/stats/time/users/" + FaceitID + "/games/csgo",
     )
     .then(response => {
       if (response.status !== 200) {
@@ -143,10 +184,11 @@ async function getStats(chan, user) {
         avgHs = Math.round(HS / divid / 100);
         avgKD = (KD / divid / 100).toFixed(2);
         avgKR = (KR / divid / 100).toFixed(2);
-
+      
         client.say(
           chan,
           `/me @` + user +
+          ` Inspected user: ` + FaceitUsername +
           ` Here are the stats of the last 20 matches: Avg. Kills: ` + avgKills +
           ` - Avg. HS%: ` + avgHs +
           `% - Avg. K/D: ` + avgKD +
@@ -158,10 +200,11 @@ async function getStats(chan, user) {
 }
 
 
-async function getLiveMatch(chan, user) {
+async function getLiveMatch(chan, user, SteamID) {
+  await getGuid(SteamID)
   await axios
     .get(
-      "https://api.faceit.com/match/v1/matches/groupByState?userId=" + ID,
+      "https://api.faceit.com/match/v1/matches/groupByState?userId=" + FaceitID,
     )
     .then(async response => {
       if (response.status !== 200) {
@@ -176,7 +219,7 @@ async function getLiveMatch(chan, user) {
                 
         let names = Object.getOwnPropertyNames(test.payload)
         var r = test.payload[names[0]][0];
-        var ownFactionNumber = checkForValue(r.teams.faction1, ID) ? 2 : 1;
+        var ownFactionNumber = checkForValue(r.teams.faction1, FaceitID) ? 2 : 1;
         var enemyFactionNumber = 1 == ownFactionNumber ? 2 : 1
         
         var teamname1 = r.teams["faction" + ownFactionNumber].name;
@@ -208,7 +251,8 @@ async function getLiveMatch(chan, user) {
 			    
         client.say(
           chan,
-          `/me @` + user + `, ` + teamname1 + ` vs ` + teamname2 + ` - AVG. ELO: `+ ownTeamAVGElo + ` Win Elo: ` + winElo + ` - Loss Elo: ` + lossElo + ` AVG. ELO: `+ enemyTeamAVGElo + `LobbyLink: ` + link);
+          `/me @` + user + `, ` +
+          ` Inspected user: ` + FaceitUsername + ` `+ teamname1 + ` vs ` + teamname2 + ` - AVG. ELO: `+ ownTeamAVGElo + ` Win Elo: ` + winElo + ` - Loss Elo: ` + lossElo + ` AVG. ELO: `+ enemyTeamAVGElo + `LobbyLink: ` + link);
       }
     })
     .catch(function(error) {});
