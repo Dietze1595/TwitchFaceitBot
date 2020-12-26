@@ -97,7 +97,7 @@ async function getlast(chan, user) {
         var last = response.data[0];
         if (user == "Dietze_" && last.matchId == lastmatchid) return;
         var lastmatchid = last.matchId;
-        var won = last.teamId == last.i2 ? "WON" : "LOSS";
+        var won = last.teamId == last.i2 ? "WON" : "LOST";
         client.say(
           chan,
           `/me @` + user +
