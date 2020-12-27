@@ -9,11 +9,11 @@ const RisqzSteamID = "76561198158626038";
 const SyrinxxSteamID = "76561198013468029";
 
 
-var Bearertoken = "AAAAA-BBBBBB-CCCCCCCC";
+var Bearertoken = "AAAAA-BBBBB-XXXXXX";
 var USERNAME = "Dietze_"
 var oauthToken = "oauth:xxxx-AAAAA-BBBB"
 
-var playerTempElo, FaceitID, SteamID, wrongSteam, FaceitUsername;
+var playerTempElo, FaceitID, wrongSteam, steamId1, FaceitUsername;
 
 let listener = app.listen(process.env.PORT, function() {
   console.log("Your app is listening on port " + listener.address().port);
@@ -45,7 +45,7 @@ client.on("connected", (address, port) => {
 
 client.on("chat", (channel, userstate, commandMessage, self) => {
   if (commandMessage.split(" ")[1] !== undefined){
-    SteamID = commandMessage.split(" ")[1];
+    var SteamID = commandMessage.split(" ")[1];
     wrongSteam = false;
   } else {
     switch(channel){
@@ -87,11 +87,32 @@ client.on("chat", (channel, userstate, commandMessage, self) => {
   };
 });
 
-
-async function getGuid(steamId){
+async function getSteamID(steamId){
   await axios
   .get(
-  "https://api.faceit.com/search/v1?limit=5&query=" + steamId,
+  "http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=60348E7D7110FDE289CD9B00D5DDA891&vanityurl=" + steamId,
+  ).then(response => {
+    if (response.status !== 200) {
+        return;
+    } else {  
+      	steamId1 = response.data.response.steamid;
+    }  
+  })
+  .catch(function(error) {});
+}
+
+  
+  
+
+async function getGuid(steamId){
+  if(!/\d/.test(steamId)){
+    await getSteamID(steamId);
+  } else {
+    steamId1 = steamId;
+  }
+  await axios
+  .get(
+  "https://api.faceit.com/search/v1?limit=5&query=" + steamId1,
   ).then(response => {
     if (response.status !== 200) {
         return;
