@@ -4,14 +4,16 @@ var axios = require("axios");
 const app = express();
 
 
-const StreamerSteamID = "76561198257065483";
-var FaceitUsername = "Dietze_"
+const DietzeSteamID = "76561198257065483";
+const RisqzSteamID = "76561198158626038";
+const SyrinxxSteamID = "76561198013468029";
 
-var Bearertoken = "xxxxx-AAAAA-BBBBBB";			// Bearertoken from Faceit
-var USERNAME = "Dietze_"				// Twitch Botname
-var oauthToken = "oauth:xxxx-AAAAA-BBBB"		// oauthToken from Twitch
 
-var playerTempElo, FaceitID, SteamID, wrongSteam;
+var Bearertoken = "AAAAA-BBBBBB-CCCCCCCC";
+var USERNAME = "Dietze_"
+var oauthToken = "oauth:xxxx-AAAAA-BBBB"
+
+var playerTempElo, FaceitID, SteamID, wrongSteam, FaceitUsername;
 
 let listener = app.listen(process.env.PORT, function() {
   console.log("Your app is listening on port " + listener.address().port);
@@ -26,10 +28,10 @@ let options = {
     reconnect: true
   },
   identity: {
-    username: USERNAME,
-    password: oauthToken
+    username: process.env.USERNAME,
+    password: process.env.PASSWORD
   },
-  channels: ["Dietze_"]
+  channels: ["risqz_", "Dietze_", "syrinxx1337"]
 };
 
 let client = new tmi.client(options);
@@ -46,7 +48,19 @@ client.on("chat", (channel, userstate, commandMessage, self) => {
     SteamID = commandMessage.split(" ")[1];
     wrongSteam = false;
   } else {
-    SteamID = StreamerSteamID;
+    switch(channel){
+      case '#dietze_':
+        SteamID = DietzeSteamID;
+        break;
+      case '#risqz_':
+        SteamID = RisqzSteamID;
+        break;
+      case '#syrinxx1337':
+        SteamID = SyrinxxSteamID;
+        break;
+      default:
+        break;
+    }
     wrongSteam = false;
   }
   switch(commandMessage.split(" ")[0]) {
@@ -75,7 +89,6 @@ client.on("chat", (channel, userstate, commandMessage, self) => {
 
 
 async function getGuid(steamId){
-  console.log(steamId);
   await axios
   .get(
   "https://api.faceit.com/search/v1?limit=5&query=" + steamId,
