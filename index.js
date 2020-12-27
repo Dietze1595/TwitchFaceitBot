@@ -11,7 +11,7 @@ const SyrinxxSteamID = "76561198013468029";
 
 var Bearertoken = "AAAAAA-BBBBBBBB-CCCCCCCC";
 var USERNAME = "Dietze_"
-var oauthToken = "oauth:xxxx-AAAAA-BBBB"
+var PASSWORD = "oauth:xxxx-AAAAA-BBBB"
 
 var playerTempElo, FaceitID, wrongSteam, steamId1, FaceitUsername;
 
@@ -28,8 +28,8 @@ let options = {
     reconnect: true
   },
   identity: {
-    username: process.env.USERNAME,
-    password: process.env.PASSWORD
+    username: USERNAME,
+    password: PASSWORD
   },
   channels: ["risqz_", "Dietze_", "syrinxx1337"]
 };
