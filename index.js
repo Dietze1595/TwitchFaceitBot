@@ -28,8 +28,8 @@ let options = {
     reconnect: true
   },
   identity: {
-    username: process.env.USERNAME,
-    password: process.env.PASSWORD
+    username: USERNAME,
+    password: oauthToken
   },
   channels: ["risqz_", "Dietze_", "syrinxx1337"]
 };
