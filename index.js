@@ -9,7 +9,7 @@ const RisqzSteamID = "76561198158626038";
 const SyrinxxSteamID = "76561198013468029";
 
 
-var Bearertoken = "AAAAA-BBBBB-XXXXXX";
+var Bearertoken = "AAAAAA-BBBBBBBB-CCCCCCCC";
 var USERNAME = "Dietze_"
 var oauthToken = "oauth:xxxx-AAAAA-BBBB"
 
@@ -28,8 +28,8 @@ let options = {
     reconnect: true
   },
   identity: {
-    username: USERNAME,
-    password: oauthToken
+    username: process.env.USERNAME,
+    password: process.env.PASSWORD
   },
   channels: ["risqz_", "Dietze_", "syrinxx1337"]
 };
@@ -213,10 +213,14 @@ async function getStats(chan, user, SteamID) {
       if (response.status !== 200) {
         var isNull = true;
       } else {  
-        var length = 20;
+        length = 20;
         var test = response.data;
         if (test.length == 0)
 			    return;
+        
+        if (test.length <=20){
+          length = test.length;
+        }
         var kills = 0, avgKills= 0, HS = 0, avgHs = 0,  divid = 0, KD = 0, avgKD = 0, KR = 0, avgKR = 0;
         for (var i = 0; i < length; i++) {
           if (test[i].gameMode !== '5v5') {
@@ -238,7 +242,7 @@ async function getStats(chan, user, SteamID) {
           chan,
           `/me @` + user +
           ` Inspected user: ` + FaceitUsername +
-          ` Here are the stats of the last 20 matches: Avg. Kills: ` + avgKills +
+          ` Here are the stats of the last ` + divid + ` matches: Avg. Kills: ` + avgKills +
           ` - Avg. HS%: ` + avgHs +
           `% - Avg. K/D: ` + avgKD +
           ` - Avg. K/R: ` + avgKR
