@@ -1,7 +1,7 @@
 {
   "name": "twitch-bot",
   "version": "1.0.1",
-  "description": "I am a twitch bot example on Glitch by shindakun",
+  "description": "I am a twitch bot example from Dietze_",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
@@ -15,12 +15,11 @@
     "node": "7.10.x"
   },
   "repository": {
-    "url": "https://glitch.com/edit/#!/twitch-bot"
+    "url": "https://dietze1595.github.io/"
   },
   "license": "MIT",
   "keywords": [
     "node",
-    "glitch",
     "express",
     "twitch.tv"
   ]
