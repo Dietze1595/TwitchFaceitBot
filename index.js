@@ -29,7 +29,7 @@ let options = {
 let client = new tmi.client(options);
 client.connect();
 
-
+ 
 client.on("connected", (address, port) => {
   console.log(`Connected to ${address}:${port}`);
 });
