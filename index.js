@@ -1,17 +1,9 @@
-const express = require("express");
-const tmi = require("tmi.js");
-var axios = require("axios");
-const app = express();
-
-
 const DietzeSteamID = "76561198257065483";
 const RisqzSteamID = "76561198158626038";
-const SyrinxxSteamID = "76561198013468029";
 
-
-var Bearertoken = "AAAAAA-BBBBBBBBBBBBB-CCCCCCCCCCC";		// FaceitBearerToken
-var USERNAME = "Dietze_"					// Twitchbot Name
-var PASSWORD = "oauth:xxxx-AAAAA-BBBB"			// Oauth Token from Twitchbot
+const Bearertoken="AAAAAA-BBBBBBBBB-CCCCCCCCC",
+const USERNAME = "Dietze_"
+const oauthToken = "AAAAAA-BBBBBBBBB-CCCCCCCCC"
 
 var playerTempElo, FaceitID, wrongSteam, steamId1, FaceitUsername;
 
@@ -29,9 +21,9 @@ let options = {
   },
   identity: {
     username: USERNAME,
-    password: PASSWORD
+    password: oauthToken
   },
-  channels: ["risqz_", "Dietze_", "syrinxx1337"]
+  channels: ["risqz_", "Dietze_"]
 };
 
 let client = new tmi.client(options);
@@ -44,8 +36,6 @@ client.on("connected", (address, port) => {
 
 
 client.on("chat", (channel, userstate, commandMessage, self) => {
-  FaceitID = false;
-  FaceitUsername = false;
   if (commandMessage.split(" ")[1] !== undefined){
     var SteamID = commandMessage.split(" ")[1];
     wrongSteam = false;
@@ -57,37 +47,39 @@ client.on("chat", (channel, userstate, commandMessage, self) => {
       case '#risqz_':
         SteamID = RisqzSteamID;
         break;
-      case '#syrinxx1337':
-        SteamID = SyrinxxSteamID;
-        break;
       default:
         break;
     }
     wrongSteam = false;
   }
-  switch(commandMessage.split(" ")[0]) {
-    case '!last':
-      getlast(channel, userstate["display-name"], SteamID);
-      break;
-    case '!stats':
-      getStats(channel, userstate["display-name"], SteamID);
-      break;
-    case '!live':
-      getLiveMatch(channel, userstate["display-name"], SteamID);
-      break;
-    case '!rank':
-    case '!elo':
-      getElo(channel, userstate["display-name"], SteamID);
-      break;
-    case '!cmd':
-    case '!commands':
-    case '!faceit':
-      client.say(channel, `/me @` + userstate["display-name"] + " You can use these Faceitcommands !last, !live, !stats, !rank");
-      break;
-    default:
-      break;
-  };
+  trySwitch(commandMessage.split(" ")[0], SteamID, channel, userstate);
 });
+
+async function trySwitch(message, SteamID, channel, userstate){
+	switch(message){
+		case '!last':
+		  await getlast(channel, userstate["display-name"], SteamID);
+		  break;
+		case '!stats':
+		  await getStats(channel, userstate["display-name"], SteamID);
+		  break;
+		case '!live':
+		  await getLiveMatch(channel, userstate["display-name"], SteamID);
+		  break;
+		case '!rank':
+		case '!elo':
+		  await getElo(channel, userstate["display-name"], SteamID);
+		  break;
+		case '!cmd':
+		case '!commands':
+		case '!faceit':
+		  client.say(channel, `@` + userstate["display-name"] + " You can use these Faceitcommands !last, !live, !stats, !rank");
+		  break;
+		default:
+		  break;
+	}
+}
+
 
 async function getSteamID(steamId){
   await axios
@@ -123,7 +115,7 @@ async function getGuid(steamId){
       
       	if(results.length == 0){ 
             wrongSteam = true;
-            return null
+            return null;
         }
       
         let defaultIndex = results.length - 1;
@@ -148,8 +140,8 @@ async function getGuid(steamId){
 
 async function getElo(chan, user, SteamID){
   await getGuid(SteamID)
-  if(wrongSteam == true || !FaceitID){
-    client.say(chan, `/me @` + user + ` No Faceitaccount found`);
+  if(wrongSteam == true){
+    client.say(chan, `@` + user + ` No Faceitaccount found`);
     return;
   }
   await axios
@@ -161,8 +153,7 @@ async function getElo(chan, user, SteamID){
       } else {
         client.say(
           chan,
-          `/me @` + user +
-          ` Inspected user: ` + FaceitUsername +
+          `@` + user +
           ` FACEIT LVL: ` + response.data.lvl +
           ` ELO: ` + response.data.elo
         );
@@ -172,9 +163,9 @@ async function getElo(chan, user, SteamID){
 }
 
 async function getlast(chan, user, SteamID) {
-  await getGuid(SteamID)
+    await getGuid(SteamID)
   if(wrongSteam == true){
-    client.say(chan, `/me @` + user + ` No Faceitaccount found`);
+    client.say(chan, `@` + user + ` No Faceitaccount found`);
     return;
   }
   await axios
@@ -192,8 +183,7 @@ async function getlast(chan, user, SteamID) {
         var won = last.teamId == last.i2 ? "WON" : "LOST";
         client.say(
           chan,
-          `/me @` + user +
-          ` Inspected user: ` + FaceitUsername +
+          `@` + user +
           ` last map ` + won +
           ` Map: ` + last.i1 +
           `. Score: ` + last.i18 +
@@ -210,7 +200,7 @@ async function getlast(chan, user, SteamID) {
 async function getStats(chan, user, SteamID) {
   await getGuid(SteamID)
   if(wrongSteam == true){
-    client.say(chan, `/me @` + user + ` No Faceitaccount found`);
+    client.say(chan, `@` + user + ` No Faceitaccount found`);
     return;
   }
   await axios
@@ -248,8 +238,7 @@ async function getStats(chan, user, SteamID) {
       
         client.say(
           chan,
-          `/me @` + user +
-          ` Inspected user: ` + FaceitUsername +
+          `@` + user +
           ` Here are the stats of the last ` + divid + ` matches: Avg. Kills: ` + avgKills +
           ` - Avg. HS%: ` + avgHs +
           `% - Avg. K/D: ` + avgKD +
@@ -264,7 +253,7 @@ async function getStats(chan, user, SteamID) {
 async function getLiveMatch(chan, user, SteamID) {
   await getGuid(SteamID)
   if(wrongSteam == true){
-    client.say(chan, `/me @` + user + ` Inspected user: ` + FaceitUsername + ` No Faceitaccount found`);
+    client.say(chan, `@` + user + ` Inspected user: ` + FaceitUsername + ` No Faceitaccount found`);
     return;
   }
   await axios
@@ -278,7 +267,7 @@ async function getLiveMatch(chan, user, SteamID) {
         var length = 20;
         var test = response.data;
         if (Object.keys(test.payload).length == 0) {
-          client.say(chan, `/me @` + user + ` Inspected user: ` + FaceitUsername +  ` Currently no faceitmatch is played`);
+          client.say(chan, `@` + user + ` Currently no faceitmatch is played`);
           return;
         }
                 
@@ -316,8 +305,8 @@ async function getLiveMatch(chan, user, SteamID) {
 			    
         client.say(
           chan,
-          `/me @` + user + `, ` +
-          ` Inspected user: ` + FaceitUsername + ` `+ teamname1 + ` vs ` + teamname2 + ` - AVG. ELO: `+ ownTeamAVGElo + ` Win Elo: ` + winElo + ` - Loss Elo: ` + lossElo + ` AVG. ELO: `+ enemyTeamAVGElo + ` LobbyLink: ` + link);
+          `@` + user + `, ` +
+         teamname1 + ` vs ` + teamname2 + ` - AVG. ELO: `+ ownTeamAVGElo + ` Win Elo: ` + winElo + ` - Loss Elo: ` + lossElo + ` AVG. ELO: `+ enemyTeamAVGElo + ` LobbyLink: ` + link);
       }
     })
     .catch(function(error) {});
