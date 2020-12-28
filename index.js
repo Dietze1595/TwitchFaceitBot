@@ -9,9 +9,9 @@ const RisqzSteamID = "76561198158626038";
 const SyrinxxSteamID = "76561198013468029";
 
 
-var Bearertoken = "AAAAAA-BBBBBBBB-CCCCCCCC";
-var USERNAME = "Dietze_"
-var PASSWORD = "oauth:xxxx-AAAAA-BBBB"
+var Bearertoken = "AAAAAA-BBBBBBBBBBBBB-CCCCCCCCCCC";		// FaceitBearerToken
+var USERNAME = "Dietze_"					// Twitchbot Name
+var PASSWORD = "oauth:xxxx-AAAAA-BBBB"			// Oauth Token from Twitchbot
 
 var playerTempElo, FaceitID, wrongSteam, steamId1, FaceitUsername;
 
@@ -44,6 +44,8 @@ client.on("connected", (address, port) => {
 
 
 client.on("chat", (channel, userstate, commandMessage, self) => {
+  FaceitID = false;
+  FaceitUsername = false;
   if (commandMessage.split(" ")[1] !== undefined){
     var SteamID = commandMessage.split(" ")[1];
     wrongSteam = false;
@@ -94,7 +96,7 @@ async function getSteamID(steamId){
   ).then(response => {
     if (response.status !== 200) {
         return;
-    } else {  
+    } else {
       	steamId1 = response.data.response.steamid;
     }  
   })
@@ -116,21 +118,27 @@ async function getGuid(steamId){
   ).then(response => {
     if (response.status !== 200) {
         return;
-    } else {       
-      	if(response.data.payload.players.results.length == 0){ 
+    } else {  
+        var results = response.data.payload.players.results;
+      
+      	if(results.length == 0){ 
             wrongSteam = true;
             return null
         }
       
-	      response.data.payload.players.results.forEach((user, index) => {
-          if (user.games.length > 0) {
-            user.games.forEach((game) => {
-              if (game.name == 'csgo'){
-                FaceitID = response.data.payload.players.results[index].guid;
-                FaceitUsername = response.data.payload.players.results[index].nickname;
-				      }
-			      })
-          }
+        let defaultIndex = results.length - 1;
+        FaceitUsername = false;
+        FaceitID = false;
+      
+        results.forEach((user, index) => {
+         if (user.games.length > 0) {
+              user.games.forEach((game) => {
+                  if (game.name == 'csgo') {
+                    FaceitUsername = results[index].nickname;
+                    FaceitID = results[index].guid;
+                  }
+              })
+            }
         });
     }  
   })
@@ -140,7 +148,7 @@ async function getGuid(steamId){
 
 async function getElo(chan, user, SteamID){
   await getGuid(SteamID)
-  if(wrongSteam == true){
+  if(wrongSteam == true || !FaceitID){
     client.say(chan, `/me @` + user + ` No Faceitaccount found`);
     return;
   }
@@ -256,7 +264,7 @@ async function getStats(chan, user, SteamID) {
 async function getLiveMatch(chan, user, SteamID) {
   await getGuid(SteamID)
   if(wrongSteam == true){
-    client.say(chan, `/me @` + user + ` No Faceitaccount found`);
+    client.say(chan, `/me @` + user + ` Inspected user: ` + FaceitUsername + ` No Faceitaccount found`);
     return;
   }
   await axios
