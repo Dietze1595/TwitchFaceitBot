@@ -278,7 +278,7 @@ async function getLiveMatch(chan, user, SteamID) {
         var length = 20;
         var test = response.data;
         if (Object.keys(test.payload).length == 0) {
-          client.say(chan, `/me @` + user + ` Currently no faceitmatch is played`);
+          client.say(chan, `/me @` + user + ` Inspected user: ` + FaceitUsername +  ` Currently no faceitmatch is played`);
           return;
         }
                 
@@ -317,7 +317,7 @@ async function getLiveMatch(chan, user, SteamID) {
         client.say(
           chan,
           `/me @` + user + `, ` +
-          ` Inspected user: ` + FaceitUsername + ` `+ teamname1 + ` vs ` + teamname2 + ` - AVG. ELO: `+ ownTeamAVGElo + ` Win Elo: ` + winElo + ` - Loss Elo: ` + lossElo + ` AVG. ELO: `+ enemyTeamAVGElo + `LobbyLink: ` + link);
+          ` Inspected user: ` + FaceitUsername + ` `+ teamname1 + ` vs ` + teamname2 + ` - AVG. ELO: `+ ownTeamAVGElo + ` Win Elo: ` + winElo + ` - Loss Elo: ` + lossElo + ` AVG. ELO: `+ enemyTeamAVGElo + ` LobbyLink: ` + link);
       }
     })
     .catch(function(error) {});
