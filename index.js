@@ -1,9 +1,11 @@
 const DietzeSteamID = "76561198257065483";
 const RisqzSteamID = "76561198158626038";
+const SyrinxxSteamID = "76561198013468029";
 
-const Bearertoken="AAAAAA-BBBBBBBBB-CCCCCCCCC",
-const USERNAME = "Dietze_"
-const oauthToken = "AAAAAA-BBBBBBBBB-CCCCCCCCC"
+
+var USERNAME = "dietze_"
+var oauthToken = "oauth:AAAAA-BBBBBBB-CCCCCCC"
+var Bearertoken="AAAAAAAAA-BBBBBBBBBBB-CCCCCCCCC",
 
 var playerTempElo, FaceitID, wrongSteam, steamId1, FaceitUsername;
 
@@ -23,13 +25,13 @@ let options = {
     username: USERNAME,
     password: oauthToken
   },
-  channels: ["risqz_", "Dietze_"]
+  channels: ["risqz_", "dietze_"]
 };
 
 let client = new tmi.client(options);
 client.connect();
 
- 
+
 client.on("connected", (address, port) => {
   console.log(`Connected to ${address}:${port}`);
 });
@@ -93,10 +95,7 @@ async function getSteamID(steamId){
     }  
   })
   .catch(function(error) {});
-}
-
-  
-  
+}  
 
 async function getGuid(steamId){
   if(!/\d/.test(steamId)){
@@ -132,28 +131,31 @@ async function getGuid(steamId){
               })
             }
         });
-    }  
+    } 
   })
   .catch(function(error) {});
 }
 
 
-async function getElo(chan, user, SteamID){
-  await getGuid(SteamID)
+async function getElo(chanElo, userElo, SteamIDElo){
+  await getGuid(SteamIDElo);
+  var FaceitUsernameElo = FaceitUsername;
+  var FaceitIDElo = FaceitID;
   if(wrongSteam == true){
-    client.say(chan, `@` + user + ` No Faceitaccount found`);
+    client.say(chanElo, `@` + userElo + ` No Faceitaccount found`);
     return;
   }
   await axios
   .get(
-  "http://api.satont.ru/faceit?nick=" + FaceitUsername,
+  "http://api.satont.ru/faceit?nick=" + FaceitUsernameElo,
   ).then(response => {
     if (response.status !== 200) {
         var isNull = true;
       } else {
         client.say(
-          chan,
-          `@` + user +
+          chanElo,
+          `@` + userElo +
+		  ` Inspected user: ` + FaceitUsernameElo +
           ` FACEIT LVL: ` + response.data.lvl +
           ` ELO: ` + response.data.elo
         );
@@ -162,15 +164,17 @@ async function getElo(chan, user, SteamID){
   .catch(function(error) {});
 }
 
-async function getlast(chan, user, SteamID) {
-    await getGuid(SteamID)
+async function getlast(chanLast, userLast, SteamIDLast) {
+  await getGuid(SteamIDLast)
+  var FaceitUsernameLast = FaceitUsername;
+  var FaceitIDLast = FaceitID;
   if(wrongSteam == true){
-    client.say(chan, `@` + user + ` No Faceitaccount found`);
+    client.say(chanLast, `@` + userLast + ` No Faceitaccount found`);
     return;
   }
   await axios
     .get(
-      "https://api.faceit.com/stats/v1/stats/time/users/" + FaceitID + "/games/csgo?size=1",
+      "https://api.faceit.com/stats/v1/stats/time/users/" + FaceitIDLast + "/games/csgo?size=1",
     )
     .then(response => {
       if (response.status !== 200) {
@@ -184,6 +188,7 @@ async function getlast(chan, user, SteamID) {
         client.say(
           chan,
           `@` + user +
+		  ` Inspected user: ` + FaceitUsernameLast +
           ` last map ` + won +
           ` Map: ` + last.i1 +
           `. Score: ` + last.i18 +
@@ -197,15 +202,17 @@ async function getlast(chan, user, SteamID) {
     .catch(function(error) {});
 }
 
-async function getStats(chan, user, SteamID) {
-  await getGuid(SteamID)
+async function getStats(chanStats, userStats, SteamIDStats) {
+  await getGuid(SteamIDStats);
+  var FaceitUsernameStats = FaceitUsername;
+  var FaceitIDStats = FaceitID;
   if(wrongSteam == true){
-    client.say(chan, `@` + user + ` No Faceitaccount found`);
+    client.say(chanStats, `@` + userStats + ` No Faceitaccount found`);
     return;
   }
   await axios
     .get(
-      "https://api.faceit.com/stats/v1/stats/time/users/" + FaceitID + "/games/csgo",
+      "https://api.faceit.com/stats/v1/stats/time/users/" + FaceitIDStats + "/games/csgo",
     )
     .then(response => {
       if (response.status !== 200) {
@@ -237,8 +244,9 @@ async function getStats(chan, user, SteamID) {
         avgKR = (KR / divid / 100).toFixed(2);
       
         client.say(
-          chan,
-          `@` + user +
+          chanStats,
+          `@` + userStats +
+		  ` Inspected user: ` + FaceitUsernameStats +
           ` Here are the stats of the last ` + divid + ` matches: Avg. Kills: ` + avgKills +
           ` - Avg. HS%: ` + avgHs +
           `% - Avg. K/D: ` + avgKD +
@@ -250,15 +258,17 @@ async function getStats(chan, user, SteamID) {
 }
 
 
-async function getLiveMatch(chan, user, SteamID) {
-  await getGuid(SteamID)
+async function getLiveMatch(chanLive, userLive, SteamIDLive) {
+  await getGuid(SteamIDLive)
+  var FaceitUsernameLive = FaceitUsername;
+  var FaceitIDLive = FaceitID;
   if(wrongSteam == true){
-    client.say(chan, `@` + user + ` Inspected user: ` + FaceitUsername + ` No Faceitaccount found`);
+    client.say(chanLive, `@` + userLive + ` Inspected user: ` + FaceitUsernameLive + ` No Faceitaccount found`);
     return;
   }
   await axios
     .get(
-      "https://api.faceit.com/match/v1/matches/groupByState?userId=" + FaceitID,
+      "https://api.faceit.com/match/v1/matches/groupByState?userId=" + FaceitIDLive,
     )
     .then(async response => {
       if (response.status !== 200) {
@@ -273,7 +283,7 @@ async function getLiveMatch(chan, user, SteamID) {
                 
         let names = Object.getOwnPropertyNames(test.payload)
         var r = test.payload[names[0]][0];
-        var ownFactionNumber = checkForValue(r.teams.faction1, FaceitID) ? 1 : 2;
+        var ownFactionNumber = checkForValue(r.teams.faction1, FaceitIDLive) ? 1 : 2;
         var enemyFactionNumber = 1 == ownFactionNumber ? 2 : 1
         
         var teamname1 = r.teams["faction" + ownFactionNumber].name;
@@ -304,8 +314,9 @@ async function getLiveMatch(chan, user, SteamID) {
         var link = "https://www.faceit.com/de/csgo/room/" + test.payload[names[0]][0].id;
 			    
         client.say(
-          chan,
-          `@` + user + `, ` +
+          chanLive,
+          `@` + userLive + `, ` +
+		  ` Inspected user: ` + FaceitUsernameLive +
          teamname1 + ` vs ` + teamname2 + ` - AVG. ELO: `+ ownTeamAVGElo + ` Win Elo: ` + winElo + ` - Loss Elo: ` + lossElo + ` AVG. ELO: `+ enemyTeamAVGElo + ` LobbyLink: ` + link);
       }
     })
