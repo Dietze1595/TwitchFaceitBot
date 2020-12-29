@@ -254,8 +254,8 @@ async function getStats(chanStats, userStats, SteamIDStats) {
 }
 
 
-async function getLiveMatch(chanLive, userLive, SteamIDLive) {
-  await getGuid(SteamIDLive);
+async function getLiveMatch(chanLive, userLive) {
+  await getGuid(StreamerSteamID);
   var FaceitUsernameLive = FaceitUsername;
   var FaceitIDLive = FaceitID;
   if(wrongSteam == true){
