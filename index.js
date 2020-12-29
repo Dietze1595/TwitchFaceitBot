@@ -1,3 +1,8 @@
+const express = require("express");
+const tmi = require("tmi.js");
+var axios = require("axios");
+const app = express();
+
 const DietzeSteamID = "76561198257065483";
 const RisqzSteamID = "76561198158626038";
 const SyrinxxSteamID = "76561198013468029";
