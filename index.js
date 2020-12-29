@@ -3,14 +3,13 @@ const tmi = require("tmi.js");
 var axios = require("axios");
 const app = express();
 
+const Bearertoken="AAAAAA-VVVVVVVVVVVVVV-XXXXXXXXXXX";				// FaceitBearertoken
+const oauthToken = "oauth:AAAAAAA-VVVVVVVVVVVVVV-XXXXXXXXXXXXXXXX";		// Twitch oauth Token
+const USERNAME = "dietze_";							// Twitchname
+
 const DietzeSteamID = "76561198257065483";
 const RisqzSteamID = "76561198158626038";
 const SyrinxxSteamID = "76561198013468029";
-
-
-const USERNAME = "dietze_";
-const oauthToken = "oauth:AAAAA-BBBBBBB-CCCCCCC";
-const Bearertoken="AAAAAAAAA-BBBBBBBBBBB-CCCCCCCCC";
 
 var playerTempElo, FaceitID, wrongSteam, steamId1, FaceitUsername;
 
@@ -30,7 +29,7 @@ let options = {
     username: USERNAME,
     password: oauthToken
   },
-  channels: ["risqz_", "dietze_"]
+  channels: ["risqz_", "dietze_", "syrinxx1337"]
 };
 
 let client = new tmi.client(options);
@@ -48,11 +47,14 @@ client.on("chat", (channel, userstate, commandMessage, self) => {
     wrongSteam = false;
   } else {
     switch(channel){
-      case '#dietze_':
+      case '#'+USERNAME:
         SteamID = DietzeSteamID;
         break;
       case '#risqz_':
         SteamID = RisqzSteamID;
+        break;
+      case '#syrinxx1337':
+        SteamID = SyrinxxSteamID;
         break;
       default:
         break;
@@ -119,7 +121,7 @@ async function getGuid(steamId){
       
       	if(results.length == 0){ 
             wrongSteam = true;
-            return null;
+            return;
         }
       
         let defaultIndex = results.length - 1;
@@ -185,14 +187,11 @@ async function getlast(chanLast, userLast, SteamIDLast) {
       if (response.status !== 200) {
         var isNull = true;
       } else {
-        var last = response.data[0];
-        if (user == "Dietze_" && last.matchId == lastmatchid) return;
-        var lastmatchid = last.matchId;
-        
+        var last = response.data[0];        
         var won = last.teamId == last.i2 ? "WON" : "LOST";
         client.say(
-          chan,
-          `@` + user +
+          chanLast,
+          `@` + userLast +
 		  ` Inspected user: ` + FaceitUsernameLast +
           ` last map ` + won +
           ` Map: ` + last.i1 +
@@ -264,7 +263,7 @@ async function getStats(chanStats, userStats, SteamIDStats) {
 
 
 async function getLiveMatch(chanLive, userLive, SteamIDLive) {
-  await getGuid(SteamIDLive)
+  await getGuid(SteamIDLive);
   var FaceitUsernameLive = FaceitUsername;
   var FaceitIDLive = FaceitID;
   if(wrongSteam == true){
@@ -281,8 +280,8 @@ async function getLiveMatch(chanLive, userLive, SteamIDLive) {
       } else {  
         var length = 20;
         var test = response.data;
-        if (Object.keys(test.payload).length == 0) {
-          client.say(chan, `@` + user + ` Currently no faceitmatch is played`);
+		if (Object.keys(test.payload).length == 0) {
+          client.say(chanLive, `@` + userLive + ` Currently no faceitmatch is played`);
           return;
         }
                 
