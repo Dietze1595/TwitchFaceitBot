@@ -4,12 +4,10 @@ var axios = require("axios");
 const app = express();
 
 const Bearertoken="AAAAAA-VVVVVVVVVVVVVV-XXXXXXXXXXX";				// FaceitBearertoken
-const oauthToken = "oauth:AAAAAAA-VVVVVVVVVVVVVV-XXXXXXXXXXXXXXXX";		// Twitch oauth Token
-const USERNAME = "dietze_";							// Twitchname
+const oauthToken = "oauth:AAAAAAA-VVVVVVVVVVVVVV-XXXXXXXXXXXXXXXX";		// Twitch oauth --> https://twitchapps.com/tmi/
+const USERNAME = "knnyx";							// Twitchname
 
-const DietzeSteamID = "76561198257065483";
-const RisqzSteamID = "76561198158626038";
-const SyrinxxSteamID = "76561198013468029";
+const StreamerSteamID = "76561198013468029";
 
 var playerTempElo, FaceitID, wrongSteam, steamId1, FaceitUsername;
 
@@ -29,7 +27,7 @@ let options = {
     username: USERNAME,
     password: oauthToken
   },
-  channels: ["risqz_", "dietze_", "syrinxx1337"]
+  channels: [USERNAME]
 };
 
 let client = new tmi.client(options);
@@ -48,13 +46,7 @@ client.on("chat", (channel, userstate, commandMessage, self) => {
   } else {
     switch(channel){
       case '#'+USERNAME:
-        SteamID = DietzeSteamID;
-        break;
-      case '#risqz_':
-        SteamID = RisqzSteamID;
-        break;
-      case '#syrinxx1337':
-        SteamID = SyrinxxSteamID;
+        SteamID = StreamerSteamID;
         break;
       default:
         break;
