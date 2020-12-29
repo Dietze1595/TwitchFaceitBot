@@ -3,9 +3,9 @@ const RisqzSteamID = "76561198158626038";
 const SyrinxxSteamID = "76561198013468029";
 
 
-var USERNAME = "dietze_"
-var oauthToken = "oauth:AAAAA-BBBBBBB-CCCCCCC"
-var Bearertoken="AAAAAAAAA-BBBBBBBBBBB-CCCCCCCCC",
+const USERNAME = "dietze_";
+const oauthToken = "oauth:AAAAA-BBBBBBB-CCCCCCC";
+const Bearertoken="AAAAAAAAA-BBBBBBBBBBB-CCCCCCCCC";
 
 var playerTempElo, FaceitID, wrongSteam, steamId1, FaceitUsername;
 
