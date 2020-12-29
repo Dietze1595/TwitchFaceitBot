@@ -7,7 +7,7 @@ const Bearertoken="AAAAAA-VVVVVVVVVVVVVV-XXXXXXXXXXX";				// FaceitBearertoken
 const oauthToken = "oauth:AAAAAAA-VVVVVVVVVVVVVV-XXXXXXXXXXXXXXXX";		// Twitch oauth --> https://twitchapps.com/tmi/
 const USERNAME = "knnyx";							// Twitchname
 
-const StreamerSteamID = "76561198013468029";
+const StreamerSteamID = "76561198013929523";
 
 var playerTempElo, FaceitID, wrongSteam, steamId1, FaceitUsername;
 
