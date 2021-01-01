@@ -5,9 +5,8 @@ const app = express();
 
 const Bearertoken="AAAAAA-VVVVVVVVVVVVVV-XXXXXXXXXXX";				// FaceitBearertoken
 const oauthToken = "oauth:AAAAAAA-VVVVVVVVVVVVVV-XXXXXXXXXXXXXXXX";		// Twitch oauth --> https://twitchapps.com/tmi/
-const USERNAME = "knnyx";							// Twitchname
-
-const StreamerSteamID = "76561198013929523";
+const USERNAME = "knnyx";							// Twitchname all in lower case
+const StreamerSteamID = "76561198013929523";					// Your STEAM64ID
 
 var playerTempElo, FaceitID, wrongSteam, steamId1, FaceitUsername;
 
