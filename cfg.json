@@ -1,0 +1,7 @@
+{
+    "username": "TwitchUsername",
+    "password": "oauth:TwitchOauthToken",
+    "channel": ["#Stream1", "#Stream2"],
+    "faceittoken": "FaceitBearertoken",
+	"SteamId": ["streamer1SteamID", "streamer2SteamID"]
+}
