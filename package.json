@@ -9,7 +9,8 @@
   "dependencies": {
     "express": "^4.17.1",
     "tmi.js": "^1.7.1",
-    "axios": "^0.21.1"
+    "axios": "^0.21.1",
+    "fs": "^0.0.2"
   },
   "engines": {
     "node": "7.10.x"
