@@ -1,16 +1,11 @@
-const express = require("express");
 const tmi = require("tmi.js");
 const axios = require("axios");
 const fs = require("fs"); 
-const app = express();
 
 var playerTempElo, FaceitID, wrongSteam, steamId1, FaceitUsername;
 
 const config = JSON.parse(fs.readFileSync("cfg.json"));
 
-let listener = app.listen(process.env.PORT, function() {
-  console.log("Your app is listening on port " + listener.address().port);
-});
 
 let options = {
   options: {
