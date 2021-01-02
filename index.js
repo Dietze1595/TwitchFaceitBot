@@ -5,7 +5,8 @@ const app = express();
 
 const Bearertoken="AAAAAA-VVVVVVVVVVVVVV-XXXXXXXXXXX";				// FaceitBearertoken
 const oauthToken = "oauth:AAAAAAA-VVVVVVVVVVVVVV-XXXXXXXXXXXXXXXX";		// Twitch oauth --> https://twitchapps.com/tmi/
-const USERNAME = "knnyx";							// Twitchname all in lower case
+const BOT_USERNAME = "bot_dietze";							// Twitch-Bot account
+const USERNAME = "knnyx";							// Twitchchannel all in lower case
 const StreamerSteamID = "76561198013929523";					// Your STEAM64ID
 
 var playerTempElo, FaceitID, wrongSteam, steamId1, FaceitUsername;
@@ -23,7 +24,7 @@ let options = {
     reconnect: true
   },
   identity: {
-    username: USERNAME,
+    username: BOT_USERNAME,
     password: oauthToken
   },
   channels: [USERNAME]
