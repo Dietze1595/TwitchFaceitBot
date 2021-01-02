@@ -54,6 +54,10 @@ client.on("connected", (address, port) => {
   console.log(`Connected to ${address}:${port}`);
 });
 
+setInterval(function(){ 
+	getlast(client.channels[0], "everyone") 
+}, 1000);
+
 client.on("chat", (channel, userstate, commandMessage, self) => {
   if (commandMessage.split(" ")[1] !== undefined){
     var SteamID = commandMessage.split(" ")[1];
@@ -165,7 +169,9 @@ async function getlast(chanLast, userLast, SteamIDLast) {
       if (response.status !== 200) {
         var isNull = true;
       } else {
-        var last = response.data[0];        
+        var last = response.data[0]; 
+	if(user == "everyone" && last.matchId == lastmatchid) return;
+	lastmatchid = last.matchId       
         var won = last.teamId == last.i2 ? "WON" : "LOST";
         client.say(
           chanLast,
