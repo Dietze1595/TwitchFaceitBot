@@ -1,15 +1,12 @@
 const express = require("express");
 const tmi = require("tmi.js");
-var axios = require("axios");
+const axios = require("axios");
+const fs = require("fs"); 
 const app = express();
 
-const Bearertoken="AAAAAA-VVVVVVVVVVVVVV-XXXXXXXXXXX";				// FaceitBearertoken
-const oauthToken = "oauth:AAAAAAA-VVVVVVVVVVVVVV-XXXXXXXXXXXXXXXX";		// Twitch oauth --> https://twitchapps.com/tmi/
-const BOT_USERNAME = "bot_dietze";							// Twitch-Bot account
-const USERNAME = "knnyx";							// Twitchchannel all in lower case
-const StreamerSteamID = "76561198013929523";					// Your STEAM64ID
-
 var playerTempElo, FaceitID, wrongSteam, steamId1, FaceitUsername;
+
+const config = JSON.parse(fs.readFileSync("cfg.json"));
 
 let listener = app.listen(process.env.PORT, function() {
   console.log("Your app is listening on port " + listener.address().port);
@@ -24,39 +21,13 @@ let options = {
     reconnect: true
   },
   identity: {
-    username: BOT_USERNAME,
-    password: oauthToken
+    username: config.username,
+    password: config.password
   },
-  channels: [USERNAME]
+  channels: config.channel
 };
 
-let client = new tmi.client(options);
-client.connect();
-
-
-client.on("connected", (address, port) => {
-  console.log(`Connected to ${address}:${port}`);
-});
-
-
-client.on("chat", (channel, userstate, commandMessage, self) => {
-  if (commandMessage.split(" ")[1] !== undefined){
-    var SteamID = commandMessage.split(" ")[1];
-    wrongSteam = false;
-  } else {
-    switch(channel){
-      case '#'+USERNAME:
-        SteamID = StreamerSteamID;
-        break;
-      default:
-        break;
-    }
-    wrongSteam = false;
-  }
-  trySwitch(commandMessage.split(" ")[0], SteamID, channel, userstate);
-});
-
-async function trySwitch(message, SteamID, channel, userstate){
+async function channelCommands(message, SteamID, channel, userstate){
 	switch(message){
 		case '!last':
 		  await getlast(channel, userstate["display-name"], SteamID);
@@ -81,6 +52,27 @@ async function trySwitch(message, SteamID, channel, userstate){
 	}
 }
 
+let client = new tmi.client(options);
+client.connect();
+
+client.on("connected", (address, port) => {
+  console.log(`Connected to ${address}:${port}`);
+});
+
+client.on("chat", (channel, userstate, commandMessage, self) => {
+  if (commandMessage.split(" ")[1] !== undefined){
+    var SteamID = commandMessage.split(" ")[1];
+    wrongSteam = false;
+  } else {
+	config.channel.forEach((streamer, index) => {
+        if(channel == streamer){
+			SteamID = config.SteamId[index];
+		}
+    }); 
+    wrongSteam = false;
+  }
+  channelCommands(commandMessage.split(" ")[0], SteamID, channel, userstate);
+});
 
 async function getSteamID(steamId){
   await axios
@@ -134,7 +126,6 @@ async function getGuid(steamId){
   })
   .catch(function(error) {});
 }
-
 
 async function getElo(chanElo, userElo, SteamIDElo){
   await getGuid(SteamIDElo);
@@ -253,9 +244,8 @@ async function getStats(chanStats, userStats, SteamIDStats) {
     .catch(function(error) {});
 }
 
-
-async function getLiveMatch(chanLive, userLive) {
-  await getGuid(StreamerSteamID);
+async function getLiveMatch(chanLive, userLive, SteamIDLive) {
+  await getGuid(SteamIDLive);
   var FaceitUsernameLive = FaceitUsername;
   var FaceitIDLive = FaceitID;
   if(wrongSteam == true){
@@ -312,7 +302,7 @@ async function getLiveMatch(chanLive, userLive) {
         client.say(
           chanLive,
           `@` + userLive + `, ` +
-		  ` Inspected user: ` + FaceitUsernameLive +
+		  ` Inspected user: ` + FaceitUsernameLive + ` ` +
          teamname1 + ` vs ` + teamname2 + ` - AVG. ELO: `+ ownTeamAVGElo + ` Win Elo: ` + winElo + ` - Loss Elo: ` + lossElo + ` AVG. ELO: `+ enemyTeamAVGElo + ` LobbyLink: ` + link);
       }
     })
@@ -322,7 +312,7 @@ async function getLiveMatch(chanLive, userLive) {
 async function getEloFromPlayer(e) {
   var isNull = 0;
     await axios
-        .get("https://open.faceit.com/data/v4/players/" + e, { headers: { Authorization: "Bearer " + Bearertoken } })
+        .get("https://open.faceit.com/data/v4/players/" + e, { headers: { Authorization: "Bearer " + config.faceittoken } })
         .then((e) => {
             200 !== e.status
                 ? (isNull = !0)
