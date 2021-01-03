@@ -2,7 +2,7 @@ const tmi = require("tmi.js");
 const axios = require("axios");
 const fs = require("fs"); 
 
-var playerTempElo, FaceitID, wrongSteam, steamId1, FaceitUsername;
+var playerTempElo, FaceitID, wrongSteam, steamId1, FaceitUsername, lastmatchid;
 
 const config = JSON.parse(fs.readFileSync("cfg.json"));
 
@@ -54,9 +54,9 @@ client.on("connected", (address, port) => {
   console.log(`Connected to ${address}:${port}`);
 });
 
-setInterval(function(){ 
-	getlast(client.channels[0], "everyone") 
-}, 1000);
+setInterval(function(){
+	getlast(config.channel[0], "everyone", config.SteamId[0]) 		// sucht alle 10sek nach einem fertigem Match, (nur für Streamer1 verfügbar)
+}, 10000);
 
 client.on("chat", (channel, userstate, commandMessage, self) => {
   if (commandMessage.split(" ")[1] !== undefined){
@@ -169,9 +169,9 @@ async function getlast(chanLast, userLast, SteamIDLast) {
       if (response.status !== 200) {
         var isNull = true;
       } else {
-        var last = response.data[0]; 
-	if(user == "everyone" && last.matchId == lastmatchid) return;
-	lastmatchid = last.matchId       
+        var last = response.data[0]; 	
+	if(userLast == "everyone" && last.matchId == lastmatchid) return;
+	lastmatchid = last.matchId        
         var won = last.teamId == last.i2 ? "WON" : "LOST";
         client.say(
           chanLast,
