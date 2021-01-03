@@ -55,7 +55,9 @@ client.on("connected", (address, port) => {
 });
 
 setInterval(function(){
-	getlast(config.channel[0], "everyone", config.SteamId[0]) 		// sucht alle 10sek nach einem fertigem Match, (nur für Streamer1 verfügbar)
+	config.channel.forEach((streamer, index) => {
+		getlast(streamer, "everyone", config.SteamId[index]); 	// sucht alle 10sek nach einem fertigem Match
+	}); 
 }, 10000);
 
 client.on("chat", (channel, userstate, commandMessage, self) => {
