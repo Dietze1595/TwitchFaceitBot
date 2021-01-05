@@ -57,6 +57,7 @@ client.on("connected", (address, port) => {
 setInterval(function(){
 	config.channel.forEach((streamer, index) => {
 		getlast(streamer, "everyone", config.SteamId[index]); 	// sucht alle 10sek nach einem fertigem Match
+		getLiveMatch(streamer, "everyone", config.SteamId[index]); // sucht alle 10sek nach einem Faceitmatch
 	}); 
 }, 10000);
 
@@ -265,7 +266,7 @@ async function getLiveMatch(chanLive, userLive, SteamIDLive) {
       } else {  
         var length = 20;
         var test = response.data;
-		if (Object.keys(test.payload).length == 0) {
+		if (Object.keys(test.payload).length == 0 && userLast != "everyone") {
           client.say(chanLive, `@` + userLive + ` Currently no faceitmatch is played`);
           return;
         }
@@ -276,7 +277,11 @@ async function getLiveMatch(chanLive, userLive, SteamIDLive) {
         var enemyFactionNumber = 1 == ownFactionNumber ? 2 : 1
         
         var teamname1 = r.teams["faction" + ownFactionNumber].name;
-		    var teamname2 = r.teams["faction" + enemyFactionNumber].name;
+	var teamname2 = r.teams["faction" + enemyFactionNumber].name;
+	
+	if(userLast == "everyone" && teamname1 == lastteamID) return;
+	lastteamID = teamname1 
+	      
         var playerOwnElo = 0;
         var playerEnemyElo = 0;
         var ownTeamAVGElo = 0;
