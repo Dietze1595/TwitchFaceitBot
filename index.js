@@ -22,6 +22,14 @@ let options = {
   channels: config.channel
 };
 
+var jokes = [
+	"Two bytes meet. The first byte asks, “Are you ill?” + 
+	"The second byte replies, “No, just feeling a bit off.”",
+	"How many programmers does it take to change a light bulb?" + 
+	"None – It’s a hardware problem",
+	"Debugging: Removing the needles from the haystack."
+];
+
 async function channelCommands(message, SteamID, channel, userstate){
 	switch(message){
 		case '!last':
@@ -60,6 +68,12 @@ setInterval(function(){
 		getLiveMatch(streamer, "everyone", config.SteamId[index]); // sucht alle 10sek nach einem Faceitmatch
 	}); 
 }, 10000);
+
+client.on('message', (channel, context, message, self) => {
+	if (context["custom-reward-id"] === "YOUR-REWARD-ID") {
+		client.say(channel, jokes[Math.floor(Math.random() * jokes.length)]);
+	}
+}
 
 client.on("chat", (channel, userstate, commandMessage, self) => {
   if (commandMessage.split(" ")[1] !== undefined){
